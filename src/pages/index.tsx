@@ -5,6 +5,7 @@ import Layout from "@/components/Layout";
 import Tabela from "@/components/Tabela";
 import Cliente from "@/core/Cliente";
 import ClienteRepositorio from "@/core/ClienteRepositorio";
+import { DocumentReference } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -22,16 +23,16 @@ export default function Home() {
   const [visible, setVisible] = useState<'form' | 'table'>('table')
 
   useEffect(()=>{
-    // repo.obterTodos().then(setClientes)
-    repo.obterTodos()
+    getClientes()
   }, [])
+  
+  function getClientes(){
+    repo.obterTodos().then(setClientes)
+  }
 
   function clienteSelecionado(cliente: Cliente) {
-    // console.log(cliente)
     setCliente(cliente)
     setVisible('form')
-    // console.log(cliente)
-    // console.log(`Editar... ${cliente.nome}`);
   }
 
   function novoCliente() {
@@ -40,12 +41,12 @@ export default function Home() {
   }
 
   function clienteExcluido(cliente: Cliente) {
-    console.log(`Excluir... ${cliente.nome}`);
+    repo.excluir(cliente).then(getClientes);
   }
 
   function salvarCliente(cliente: Cliente) {
-    console.log(`Salvar... ${cliente.nome}`);
     setVisible('table')
+    repo.salvar(cliente).then(getClientes);
   }
 
 
