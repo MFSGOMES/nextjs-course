@@ -11,5 +11,7 @@ initializeApp({
 });
 
 const firestore = getFirestore();
+// console.log(initializeApp);
+// console.log(firestore);
 
 export {firestore};

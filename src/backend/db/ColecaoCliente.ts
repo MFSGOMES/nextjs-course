@@ -7,11 +7,11 @@ import {
   QueryDocumentSnapshot,
   DocumentData,
   query,
-  where,
-  limit,
   getDocs,
+  deleteDoc,
   doc,
 } from "@firebase/firestore";
+import { DocumentReference, setDoc, updateDoc } from "firebase/firestore";
 
 const clientesCollection = collection(firestore, "/clientes");
 
@@ -33,39 +33,43 @@ export default class ColecaoCliente implements ClienteRepositorio {
     },
   };
 
-  //   async salvar(cliente: Cliente): Promise<Cliente> {
-  //     if (cliente?.id) {
-  //         await this.#colecao().doc(cliente.id).set(cliente)
-  //         return cliente
-  //     }else{
-  //         const docRef = await this.#colecao().add(cliente)
-  //         const doc = await docRef.get()
-  //         return doc.data
-  //     }
-  //   }
+  async salvar(cliente: Cliente): Promise<void> {
+    const clData = {
+      nome: cliente.nome,
+      idade: cliente.idade,
+    };
 
-  //   async excluir(cliente: Cliente): Promise<void> {
-  //     return  this.#colecao().doc(cliente.id).delete;
-  //   }
-
-  async obterTodos() {
-    const todosQuery = query(
-      clientesCollection,
-      where("nome", "!=", null)
-    );
-    
-    const querySnapshot = await getDocs(todosQuery);
-    console.log(querySnapshot);
-
-    const result: QueryDocumentSnapshot<DocumentData>[] = [];
-    console.log(result);
-    querySnapshot.forEach((snapshot) => {
-      console.log(snapshot);
-      result.push(snapshot);
-    });
+    if (cliente?.id) {
+      const clDoc = doc(firestore, `clientes/${cliente.id}`);
+      return await updateDoc(clDoc, clData);
+    } else {
+      const timestamp: string = Date.now().toString();
+      const clDoc = doc(firestore, `clientes/${timestamp}`);
+      return await setDoc(clDoc, clData);
+    }
   }
 
-  //   #colecao() {
-  //     return firestore.collection('clientes').withConverter(this.#conversor)
-  //   }
+  async excluir(cliente: Cliente): Promise<void> {
+    const _cl = doc(firestore, `clientes/${cliente.id}`);
+    return await deleteDoc(_cl);
+  }
+
+  async obterTodos(): Promise<Cliente[]> {
+    const todosQuery = query(clientesCollection);
+    const querySnapshot = await getDocs(todosQuery);
+    const clientes: Cliente[] = [];
+
+    if (!querySnapshot.empty) {
+      querySnapshot.docs.forEach((doc: DocumentData) => {
+        const cl = doc.data();
+        if (clientes.filter((c) => c.nome === cl.nome).length == 0) {
+          clientes.push(new Cliente(cl.nome, cl.idade, doc.id));
+        }
+      });
+
+      return clientes;
+    }
+
+    return [];
+  }
 }
