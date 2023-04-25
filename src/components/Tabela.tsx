@@ -3,12 +3,12 @@ import { IconeDelete, IconeEdicao } from "./Icones";
 
 interface TabelaProps {
     clientes: Cliente[]
-    clienteSelecionado?: (cliente: Cliente) => void
-    clienteExcluido?: (cliente: Cliente) => void
+    selecionarCliente?: (cliente: Cliente) => void
+    excluirCliente?: (cliente: Cliente) => void
 }
 export default function Tabela(props: TabelaProps) {
 
-    const exibirAcoes = props.clienteSelecionado || props.clienteExcluido
+    const exibirAcoes = props.selecionarCliente || props.excluirCliente
 
     function renderizarCbecalho() {
         return (
@@ -40,28 +40,28 @@ export default function Tabela(props: TabelaProps) {
     function renderizarAcoes(cliente: Cliente) {
         return (
             <td className="flex justify-center">
-                {props.clienteSelecionado
+                {props.selecionarCliente
                     ? (
                         <button className={`
                             flex justify-center items-center
                             text-green-600 rounded-full p-2 m-1
                             hover:bg-purple-50
                         `}
-                        onClick={() => props.clienteSelecionado?.(cliente)}
+                        onClick={() => props.selecionarCliente?.(cliente)}
                         >
                             {IconeEdicao}
                         </button>
                     )
                     : false}
 
-                {props.clienteExcluido
+                {props.excluirCliente
                     ? (
                         <button className={`
                             flex justify-center items-center
                             text-red-500 rounded-full p-2 m-1
                             hover:bg-purple-50
                         `}
-                        onClick={() => props.clienteExcluido?.(cliente)}
+                        onClick={() => props.excluirCliente?.(cliente)}
                         >
                             {IconeDelete}
                         </button>

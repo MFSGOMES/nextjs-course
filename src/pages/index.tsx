@@ -1,54 +1,21 @@
-import ColecaoCliente from "@/backend/db/ColecaoCliente";
 import Botao from "@/components/Botao";
 import Formulario from "@/components/Formulario";
 import Layout from "@/components/Layout";
 import Tabela from "@/components/Tabela";
-import Cliente from "@/core/Cliente";
-import ClienteRepositorio from "@/core/ClienteRepositorio";
-import { DocumentReference } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import useCliente from "@/hooks/useCliente";
 
 export default function Home() {
-  // const clientes = [
-  //   new Cliente("Bianca", 34, '1'),
-  //   new Cliente("José", 33, '2'),
-  //   new Cliente("Maria", 40, '3'),
-  //   new Cliente("Abigail", 1, '4'),
-  // ]
 
-  const repo: ClienteRepositorio = new ColecaoCliente()
-
-  const [cliente, setCliente] = useState<Cliente>(Cliente.vazio())
-  const [clientes, setClientes] = useState<Cliente[]>([])
-  const [visible, setVisible] = useState<'form' | 'table'>('table')
-
-  useEffect(()=>{
-    getClientes()
-  }, [])
-  
-  function getClientes(){
-    repo.obterTodos().then(setClientes)
-  }
-
-  function clienteSelecionado(cliente: Cliente) {
-    setCliente(cliente)
-    setVisible('form')
-  }
-
-  function novoCliente() {
-    setCliente(Cliente.vazio)
-    setVisible('form')
-  }
-
-  function clienteExcluido(cliente: Cliente) {
-    repo.excluir(cliente).then(getClientes);
-  }
-
-  function salvarCliente(cliente: Cliente) {
-    setVisible('table')
-    repo.salvar(cliente).then(getClientes);
-  }
-
+  const {
+    cliente,
+    clientes,
+    tabelaVisivel, 
+    excluirCliente,
+    novoCliente,
+    salvarCliente,
+    selecionarCliente,
+    exibirTabela
+  } = useCliente()
 
   return (
     <div className={`
@@ -57,7 +24,7 @@ export default function Home() {
       text-white
     `}>
       <Layout title="Cadastro Simples">
-        {visible === 'table' ? (
+        {tabelaVisivel ? (
           <>
             <div className="flex justify-end">
               <Botao cor="green" className="mb-4"
@@ -67,15 +34,15 @@ export default function Home() {
             </div>
             <Tabela
               clientes={clientes}
-              clienteSelecionado={clienteSelecionado}
-              clienteExcluido={clienteExcluido}
+              selecionarCliente={selecionarCliente}
+              excluirCliente={excluirCliente}
             />
           </>
         ) : (
           <Formulario
             cliente={cliente}
             clienteMudou={salvarCliente}
-            onCancelClick={() => setVisible('table')} />
+            onCancelClick={() => exibirTabela} />
         )}
 
       </Layout>
